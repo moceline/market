@@ -1,10 +1,13 @@
 import java.util.Scanner;
+
+import javax.swing.JOptionPane;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Market {
-    private static Scanner input = new Scanner(System.in);
+    // private static Scanner input = new Scanner(System.in);
     private static ArrayList<Product> products;
     private static Map<Product, Integer> cart;
 
@@ -15,18 +18,15 @@ public class Market {
     }
 
     private static void menu() {
-        System.out.println("********** Market Global *************");
-        System.out.println("**********    Welcome!   *************");
-        System.out.println("*   Choose one of the options below  *");
-        System.out.println("*   1 - Register a new product       *");
-        System.out.println("*   2 - List product in stock        *");
-        System.out.println("*   3 - Buy  product                 *");
-        System.out.println("*   4 - See cart                     *");
-        System.out.println("*   5 - Exit                         *");
-        System.out.println("**************************************");
 
         try {
-            int option = input.nextInt();
+            int option = Integer.parseInt(JOptionPane.showInputDialog("********** Market Global *************" +
+                    "\nChoose one of the options below " +
+                    "   \n1 - Register a new product" +
+                    "   \n2 - List product in stock " +
+                    "   \n3 - Buy  product" +
+                    "   \n4 - See cart    " +
+                    "   \n5 - Exit        "));
 
             switch (option) {
                 case 1:
@@ -46,13 +46,13 @@ public class Market {
                     break;
 
                 default:
-                    System.out.println("Invalid option. Try again.");
+                    JOptionPane.showMessageDialog(null, "Invalid option. Try again.");
                     menu();
                     break;
             }
 
         } catch (Exception e) {
-            System.out.println("Invalid option. Try again.");
+            JOptionPane.showMessageDialog(null, "Invalid option. Try again.");
 
         }
 
@@ -60,15 +60,13 @@ public class Market {
 
     private static void registerProduct() {
         try {
-            System.out.println("\nRegister the name product:");
-            String name = input.next();
-            System.out.println("\nRegister the price product:");
-            Double price = input.nextDouble();
+            String name = JOptionPane.showInputDialog("\nRegister the name product:");
+            Double price = Double.parseDouble(JOptionPane.showInputDialog("\nRegister the price product"));
 
             Product product = new Product(name, price);
             products.add(product);
         } catch (Exception e) {
-            System.out.println("Error");
+            JOptionPane.showMessageDialog(null, "Error");
 
         } finally {
             menu();
@@ -77,68 +75,70 @@ public class Market {
     }
 
     private static void productList() {
+        String newProducts = "";
         if (products.size() != 0) {
             for (Product p : products) {
-                System.out.println(p);
+                newProducts += p.getId() + " - " + p.getName() + " - " + p.getPrice() + "\n";
             }
-
+            JOptionPane.showMessageDialog(null, newProducts);
         }
 
         menu();
     }
 
     private static void buyProduct() {
-        System.out.println("Write the Id of product:");
-        System.out.println("******  Products available   ******");
-
+        String newProducts = "";
         // Verify the produtcs available
         if (products.size() != 0) {
             for (Product p : products) {
-                System.out.println(p);
+                newProducts += p.getId() + " - " + p.getName() + " - " + p.getPrice() + "\n";
             }
-        }
 
-        System.out.println("Id of product:");
-        int id = input.nextInt();
-        Boolean isExists = false;
+            int id = Integer
+                    .parseInt(JOptionPane.showInputDialog(null, newProducts + "\n" + "Register the Id of product:"));
 
-        for (Product p : products) {
+            Boolean isExists = false;
 
-            if (p.getId() == id) {
+            for (Product p : products) {
 
-                int quantity = 0;
+                if (p.getId() == id) {
 
-                // If the product is available, add in the cart
-                try {
-                    quantity = cart.get(p);
-                    // Add
-                    cart.put(p, quantity + 1);
+                    int quantity = 0;
 
-                } catch (NullPointerException e) {
-                    cart.put(p, 1);
-                }
+                    // If the product is available, add in the cart
+                    try {
+                        quantity = cart.get(p);
+                        // Add
+                        cart.put(p, quantity + 1);
 
-                isExists = true;
-
-                if (isExists) {
-                    System.out.println("product added to cart.");
-                    System.out.println("If want to add another product enter 1 or 0 to complete phurchase");
-                    int option = input.nextInt();
-
-                    if (option == 1) {
-                        buyProduct();
-                    } else {
-                        finalizePurchase();
+                    } catch (NullPointerException e) {
+                        cart.put(p, 1);
                     }
+
+                    isExists = true;
+
+                    if (isExists) {
+                        JOptionPane.showMessageDialog(null, "product added to cart!!!");
+
+                        int option = Integer.parseInt(JOptionPane.showInputDialog(null,
+                                "If want to add another product enter 1 or 0 to complete phurchase"));
+                        if (option == 1) {
+                            buyProduct();
+                        } else {
+                            finalizePurchase();
+                        }
+                    }
+
                 }
 
             }
 
-        }
-
-        if (isExists == false) {
-            System.out.println("Product not found!");
-            menu();
+            if (isExists == false) {
+                JOptionPane.showMessageDialog(null, "Product not found!");
+                menu();
+            }
+        } else {
+            JOptionPane.showMessageDialog(null, "Product not found!");
         }
     }
 
@@ -146,24 +146,24 @@ public class Market {
         // Check cart
         if (cart.size() > 0) {
             for (Product p : cart.keySet()) {
-                System.out.println("Product:" + p.getName() + " The amount.:" + cart.get(p));
+                JOptionPane.showMessageDialog(null, "Product:" + p.getName() + " The amount.:" + cart.get(p));
             }
         } else {
-            System.out.println("There is no product in the cart");
+            JOptionPane.showMessageDialog(null, "There is no product in the cart!!!");
         }
 
     }
 
     private static void finalizePurchase() {
-        System.out.println("******** Get products ***********");
         Double buyValue = 0.0;
+        String strBuy = "";
         for (Product p : cart.keySet()) {
             int quantity = cart.get(p);
             buyValue += p.getPrice() * quantity;
-            System.out.println("Product:" + p.getName());
-            System.out.println("Amount:" + quantity);
+            strBuy += "Product:" + p.getName() + " - Quantity:" + quantity + "\n";
         }
-        System.out.println("Buy amount is :" + Utility.doubleToString(buyValue));
+        JOptionPane.showMessageDialog(null,
+                "Get Products\n\n" + strBuy + "\nAmount is :" + Utility.doubleToString(buyValue));
     }
 
 }
